@@ -6,10 +6,14 @@ import Graphics.Gloss
 import Model
 
 view :: GameState -> IO Picture
-view = return . viewPure
+view = return . viewInitialstate
 
-viewPure :: GameState -> Picture
-viewPure gstate = case infoToShow gstate of
-  ShowNothing   -> blank
-  ShowANumber n -> color green (text (show n))
-  ShowAChar   c -> color green (text [c])
+viewInitialstate :: GameState -> IO Picture
+view _ =  do 
+  let x = -300
+  let y = 100
+  let itext = translate x y  (scale 0.3 0.3 (color white (text ("Welcome to alien defence" ))))
+  let initialtext = picture itext
+  return initialtext
+
+

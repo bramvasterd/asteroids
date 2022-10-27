@@ -29,5 +29,3 @@ inputKey (EventKey (Char c) _ _ _) gstate
   = -- If the user presses a character key, show that one
     gstate { infoToShow = ShowAChar c }
 inputKey _ gstate = gstate -- Otherwise keep the same
-
-kak
