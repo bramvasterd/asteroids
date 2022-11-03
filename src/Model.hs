@@ -6,7 +6,7 @@ type Velocity = Float
 type Score    = Float
 type Position = (Float, Float)
 
-data Asteroid   = Asteroid  {asteroidPosition:: Position, size :: Float}
+data Asteroid   = Asteroid  {asteroidPosition:: Position, size :: Float, asteroidAngle :: Float}
 data Player     = Player    {playerPosition:: Position, moving :: Bool, playerDirection :: Direction, playerAngle:: Angle, lives::Int}
 data Bullet     = Bullet    {bulletPosition:: Position, bulletAngle :: Float}
 data Rocket     = Rocket    {rocketPosition:: Position, rocketAngle :: Float}

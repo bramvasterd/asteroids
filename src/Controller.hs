@@ -11,16 +11,11 @@ import System.Random
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
 step secs (GameState p bs as rs st sd t) 
-  = -- We show a new random number
-    -- do randomNumber <- randomIO
-    --    let spawnRate = abs randomNumber `mod` 30
-       if st == Playing then return $ GameState (updatePlayer p) (updateBullets bs) ( as) ( rs) st (sd) (t+1)
+  = 
+       if st == Playing then return $ GameState (updatePlayer p) (updateBullets bs) (updateAsteroids as sd) ( rs) st (updateSeed sd) (t+1)
        else if st == Paused then return $ GameState p bs as rs st sd t
        else if st== Initial then return $ GameState p bs as rs st sd t
        else return $ (GameState p [] [] [] Stopped sd t)
-  -- = 
-  --   do randomNumber <- randomIO
-  --      return $ GameState (updatePlayer p) (updateBullets bs) ( as) ( rs) st (sd) (t+1)
 
 -- | Handle user input
 input :: Event -> GameState -> IO GameState
@@ -74,17 +69,30 @@ updateBullet(Bullet (x, y) a) = Bullet (newX, newY) a
     newX = x + sin(a) * 6 -- BULLETSPEED
     newY = y + cos(a) * 6 -- BULLETSPEED
 
-updateAsteroids :: [Asteroid] -> [Asteroid]
-updateAsteroids = undefined
+updateAsteroids :: [Asteroid] -> Int -> [Asteroid]
+updateAsteroids as sd | sd `mod` 100 == 1 = (spawnAsteroid sd):as
+                      | otherwise = filter (keepAsteroid) [updateAsteroid a | a <- as]
 
 updateAsteroid :: Asteroid -> Asteroid
-updateAsteroid = undefined
+updateAsteroid (Asteroid (x,y) s a) = (Asteroid (newX, newY) s a)
+  where
+    newX = x + sin(a / 10) * 2 -- ASTEROIDSPEED
+    newY = y + cos(a / 10) * 2 -- ASTEROIDSPEED
 
-spawnAsteroid :: [Asteroid] -> Int -> [Asteroid]
-spawnAsteroid = undefined
+spawnAsteroid :: Int -> Asteroid
+spawnAsteroid sd = (Asteroid (xLoc,yLoc) 2 a)
+  where
+    cs = [-500..500]
+    (xLoc,yLoc,a) | s == 0 = (-1000, cs !! i, fst $ randomR (5, 20) (mkStdGen sd))
+                  | s == 1 = (1000, cs !! i, fst $ randomR (40, 55) (mkStdGen sd))
+                  | s == 2 = (cs !! i, -1000, fst $ randomR (-5, 10) (mkStdGen sd))
+                  | s == 3 = (cs !! i, 1000, fst $ randomR (20, 35) (mkStdGen sd))
+                  -- | otherwise = (-320, cs !! i, fst $ randomR (5, 20) (mkStdGen sd))
+    s = (fst $ randomR (0, 3) (mkStdGen sd)) :: Int
+    i = (fst $ randomR (0, 1000) (mkStdGen (sd + 1))) :: Int
 
 keepAsteroid :: Asteroid -> Bool
-keepAsteroid = undefined
+keepAsteroid a = True
 
 updateRockets :: [Rocket] -> [Rocket]
 updateRockets = undefined
@@ -93,7 +101,8 @@ updateRocket :: Rocket -> Rocket
 updateRocket = undefined
 
 updateSeed :: Int -> Int
-updateSeed = undefined
+updateSeed seed | seed < 5000 = seed + 1
+                | otherwise = 0 
 
 checkState :: GameStatus
 checkState = undefined
