@@ -29,11 +29,13 @@ inputKey (EventKey (Char 'w') Up _ _) (GameState (Player p m d a l) bs as rs st 
 inputKey (EventKey (Char 'a') Down _ _) (GameState (Player p m d a l) bs as rs st sd t)
   = GameState (Player p m ToLeft a l) bs as rs st sd t
 inputKey (EventKey (Char 'a') Up _ _) (GameState (Player p m d a l) bs as rs st sd t)
-  = GameState (Player p m Loose a l) bs as rs st sd t
+  | d == ToLeft = GameState (Player p m Loose a l) bs as rs st sd t
+  | otherwise = GameState (Player p m d a l) bs as rs st sd t
 inputKey (EventKey (Char 'd') Down _ _) (GameState (Player p m d a l) bs as rs st sd t)
   = GameState (Player p m ToRight a l) bs as rs st sd t
 inputKey (EventKey (Char 'd') Up _ _) (GameState (Player p m d a l) bs as rs st sd t)
-  = GameState (Player p m Loose a l) bs as rs st sd t
+  | d == ToRight = GameState (Player p m Loose a l) bs as rs st sd t
+  | otherwise = GameState (Player p m d a l) bs as rs st sd t
 inputKey (EventKey (SpecialKey KeySpace) Down _ _) (GameState (Player (x,y) m d a l) bs as rs st sd t)
  = GameState (Player (x,y) m d a l) ((Bullet (x + 40 * sin(a), y + 40 * cos(a)) a):bs) as rs st sd t
 
