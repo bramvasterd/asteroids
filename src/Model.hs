@@ -7,11 +7,15 @@ type Score    = Float
 type Position = (Float, Float)
 
 data Asteroid   = Asteroid  {asteroidPosition:: Position, size :: Float}
-data Player     = Player    {playerPosition:: Position, moving :: Bool, playerAngle:: Angle, lives::Int}
+data Player     = Player    {playerPosition:: Position, moving :: Bool, playerDirection :: Direction, playerAngle:: Angle, lives::Int}
 data Bullet     = Bullet    {bulletPosition:: Position, bulletAngle :: Float}
 data Rocket     = Rocket    {rocketPosition:: Position, rocketAngle :: Float}
 
+data Direction  = ToLeft | ToRight | Static
+                  deriving (Eq)
+
 data GameStatus = Initial | Playing | Paused | Stopped
+    deriving Eq
 
 
 
@@ -28,3 +32,6 @@ data GameState = GameState {
                             state :: GameStatus ,
                             seed :: Int,
                             elapsedTime :: Float}
+
+initialState :: GameState
+initialState = GameState (Player (0, 0) False Static 0 3) [] [] [] Playing 1 0
