@@ -2,45 +2,83 @@
 --   the game state into a picture
 module View where
 
-import Data.List
-import Data.Ord
 import Graphics.Gloss
+import Data.Monoid
+import Graphics.Gloss.Data.Bitmap
 import Model
-
+import System.IO
+import Control.Monad
+import System.Directory
 
 
 view:: GameState -> IO Picture 
-view state = do
-  playerpic <- (viewPlayer state)
-  bulletpic <- (viewBullet state)
-  asteroidpic <- (viewAsteroids state)
-  rocketpic <- (viewRockets state)
-  return (pictures [playerpic, bulletpic, asteroidpic, rocketpic])
+view (GameState p bs as rs st sd t)  = 
+  if (st == Playing) then do
+    playerpic <- (viewPlayer p)
+    bulletpic <- (viewBullet bs)
+    asteroidpic <- (viewAsteroids as)
+    rocketpic <- (viewRockets rs)
+    scorepic <- (viewScore t)
+    return (pictures [playerpic, bulletpic, asteroidpic, rocketpic, scorepic])
+  else if (st == Paused) then do 
+    undefined
+  else if (st == Initial) then do
+    undefined
+  else 
+    undefined
 
-viewPlayer :: GameState -> IO Picture
-viewPlayer (GameState (Player (x,y) _ alpha _) _ _ _ _ _ _ )= do 
+viewPlayer :: Player -> IO Picture
+viewPlayer (Player (x,y) _ _ alpha _) = do 
             playerbmp <- loadBMP "src/spaceship.bmp"
             let scaleplayer = scale 0.3 0.3 playerbmp
             let rotateplayer  = rotate (alpha*180/pi) scaleplayer
             let player = translate x y rotateplayer
             return player
 
-viewBullet :: GameState -> IO Picture
-viewBullet (GameState _ bs _ _ _ _ _ ) = do 
-            let bulletbmp = Color (white) (circleSolid 1)
+viewBullet :: [Bullet] -> IO Picture
+viewBullet bs = do 
+            let bulletbmp = Color (white) (circleSolid 3)
             let shots = pictures [translate x y bulletbmp | Bullet (x,y) _ <- bs ]
             return shots
 
-viewAsteroids :: GameState -> IO Picture
-viewAsteroids (GameState _ _ as _ _ _ _ ) = do
+viewAsteroids :: [Asteroid] -> IO Picture
+viewAsteroids as = do
             asteroidbmp <- loadBMP "src/asteroidbmp.bmp"
             let asteroids = pictures [translate x y (scale size size asteroidbmp) | Asteroid (x,y) size <- as]
             return asteroids
 
-viewRockets :: GameState -> IO Picture
-viewRockets (GameState _ _ _ rs _ _ _) = do 
+viewRockets :: [Rocket] -> IO Picture
+viewRockets rs = do 
             rocketbmp <- loadBMP "src/rocket.bmp"
             let rockets = pictures [translate x y (scale 1 1 rocketbmp) | Rocket (x,y) _ <- rs]
             return rockets
+
+viewScore :: Float -> IO Picture 
+viewScore  t = do 
+            let score  = (round t) `div` 100
+            hs <- highscore score
+            let scoreText = translate 250 320 (scale 0.2 0.2 (color white (text ("High Score: " ++ hs ++ "  Score: " ++ show score)))) 
+            return scoreText
+
+-- viewFinalState :: GameState -> IO Picture
+-- viewFinalState (GameState _ _ _ _ _ _ t) = do 
+--             let score  = (round t) `div` 100
+--             hs <- highscore score
+--             let highScoreText = translate 0 100 (scale 0.2 0.2 (color white (text ("Highscore: " ++ show hs))))
+--             let finalScoreText =  translate 0 -100 (scale 0.2 0.2 (color white (text ("Score: " ++ show score))))
+--             let scores = pictures [highScoreText, finalScoreText]
+--             return scores
+
+
+highscore :: Int -> IO String
+highscore score = do 
+            t <- readFile "highscore.txt" 
+            let x = read t :: Int
+            let y = if score > x then score else x
+            let xs = show y
+            writeFile "highscore2.txt" xs     -- Cant overwrite the original .txt file due to lazy evaluation
+            removeFile "highscore.txt"        -- Solution is to make a new file, remove old one and rename the new file
+            renameFile "highscore2.txt" "highscore.txt"
+            return xs
 
 
