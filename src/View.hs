@@ -51,7 +51,7 @@ viewBullet bs = do
 viewAsteroids :: [Asteroid] -> IO Picture
 viewAsteroids as = do
             asteroidbmp <- loadBMP "src/asteroidbmp.bmp"
-            let asteroids = pictures [translate x y (scale size size asteroidbmp) | Asteroid (x,y) size <- as]
+            let asteroids = pictures [translate x y (scale (size*0.2) (size*0.2) asteroidbmp) | Asteroid (x,y) size _ <- as]
             return asteroids
 
 viewRockets :: [Rocket] -> IO Picture
