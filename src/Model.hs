@@ -9,7 +9,7 @@ type Position = (Float, Float)
 data Asteroid   = Asteroid  {asteroidPosition:: Position, size :: Float}
 data Player     = Player    {playerPosition:: Position, moving :: Bool, playerAngle:: Angle, lives::Int}
 data Bullet     = Bullet    {bulletPosition:: Position, bulletAngle :: Float}
-data Rocket     = Rocket    {rocketPosition:: Position}
+data Rocket     = Rocket    {rocketPosition:: Position, rocketAngle :: Float}
 
 data GameStatus = Initial | Playing | Paused | Stopped
 
