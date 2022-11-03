@@ -21,11 +21,18 @@ view (GameState p bs as rs st sd t)  =
     scorepic <- (viewScore t)
     return (pictures [playerpic, bulletpic, asteroidpic, rocketpic, scorepic])
   else if (st == Paused) then do 
-    undefined
-  else if (st == Initial) then do
-    undefined
-  else 
-    undefined
+    playerpic <- (viewPlayer p)
+    bulletpic <- (viewBullet bs)
+    asteroidpic <- (viewAsteroids as)
+    rocketpic <- (viewRockets rs)
+    scorepic <- (viewScore t)
+    let pausetext = translate (-200) (-10) (scale 0.2 0.2 (color white (text ("PAUSED \n Press P to start")))) 
+    return (pictures [playerpic, bulletpic, asteroidpic, rocketpic, scorepic, pausetext])
+  else do
+    let finishText = translate (-180) (100) (scale 0.2 0.2 (color white (text ("GAME OVER")))) 
+    sc <- (viewScore t)
+    let scoreFin = translate (-450) (-300) sc
+    return (pictures [finishText, scoreFin])
 
 viewPlayer :: Player -> IO Picture
 viewPlayer (Player (x,y) _ _ alpha _) = do 
