@@ -57,7 +57,7 @@ viewAsteroids as = do
 viewRockets :: [Rocket] -> IO Picture
 viewRockets rs = do 
             rocketbmp <- loadBMP "src/rocket.bmp"
-            let rockets = pictures [translate x y (scale 1 1 rocketbmp) | Rocket (x,y) _ <- rs]
+            let rockets = pictures [translate x y (scale 0.2 0.2 (rotate (a*180/pi) rocketbmp)) | Rocket (x,y) a <- rs]
             return rockets
 
 viewScore :: Float -> IO Picture 
