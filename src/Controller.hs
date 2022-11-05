@@ -12,7 +12,7 @@ import System.Random
 step :: Float -> GameState -> IO GameState
 step secs (GameState p bs as rs st sd t) 
   = 
-       if st == Playing then return $ GameState (updatePlayer p) (updateBullets bs) (updateAsteroids as sd) ( rs) st (updateSeed sd) (t+1)
+       if st == Playing then return $ GameState (updatePlayer p) (updateBullets bs) (updateAsteroids as sd) (updateRockets p rs sd ) st (updateSeed sd) (t+1)
        else if st == Paused then return $ GameState p bs as rs st sd t
        else if st== Initial then return $ GameState p bs as rs st sd t
        else return $ (GameState p [] [] [] Stopped sd t)
@@ -94,20 +94,45 @@ spawnAsteroid sd = (Asteroid (xLoc,yLoc) 2 a)
     i = (fst $ randomR (0, 1000) (mkStdGen (sd + 1))) :: Int
 
 keepAsteroid :: Asteroid -> Bool
-keepAsteroid a = True
+keepAsteroid (Asteroid (x,y) a s ) |  x > 1050 || x < -1050 = False
+                                   |  y > 1050 || y < -1050 = False
+                                   | otherwise = True
 
-updateRockets :: [Rocket] -> [Rocket]
-updateRockets = undefined
+updateRockets :: Player -> [Rocket] -> Int -> [Rocket]
+updateRockets p  rs sd   | sd `mod` 300 == 2 = (spawnRocket p sd):rs
+                         | otherwise = filter (keepRocket) [updateRocket r | r <- rs]
 
 updateRocket :: Rocket -> Rocket
-updateRocket = undefined
+updateRocket (Rocket (x,y) a) = (Rocket (x', y') a)
+  where
+    x' = x + sin(a) * 9 -- Rocketspeed
+    y' = y + cos(a) * 9 -- Rocketspeed
 
+spawnRocket :: Player -> Int -> Rocket
+spawnRocket (Player (xp,yp) _ _ _ _) sd = (Rocket (x,y) a)
+  where
+    (x,y,a)       | s == 0 = (-1000, yp, 0.5*pi)
+                  | s == 1 = (1000, yp, -0.5*pi)
+                  | s == 2 = (xp, -1000, 0)
+                  | s == 3 = (xp, 1000, (-1)*pi)
+                  
+    s = (fst $ randomR (0, 3) (mkStdGen sd)) :: Int
+
+
+keepRocket :: Rocket -> Bool
+keepRocket (Rocket (x,y) _ ) |  x > 1050 || x < -1050 = False
+                             |  y > 1050 || y < -1050 = False   
+                             | otherwise              = True
 updateSeed :: Int -> Int
-updateSeed seed | seed < 5000 = seed + 1
+updateSeed seed | seed < 10000 = seed + 1
                 | otherwise = 0 
 
 checkState :: GameStatus
 checkState = undefined
 
-colliding :: Position -> Position -> Bool
-colliding = undefined
+-- noHitAsteroid :: Asteroid -> Bool
+-- noHitAsteroid (Asteroid (x,y) s a ) =  not (any (== True) [hit (x,y) (bx, by) |  Bullet (bx,by) ba <- bs])
+
+-- hit :: Position -> Position -> Bool
+-- hit (x,y) (x', y') | abs(x - x') < 20 && abs(y - y') < 20   = True
+--                    | otherwise  = False 
