@@ -12,7 +12,7 @@ import System.Random
 step :: Float -> GameState -> IO GameState
 step secs (GameState p bs as rs st sd t) 
   = 
-       if st == Playing then return $ GameState (updatePlayer p) (updateBullets bs as) (updateAsteroids as bs sd) (updateRockets p rs sd ) (checkState st p as rs) (updateSeed sd) (t+1)
+       if st == Playing then return $ GameState (updatePlayer p) (updateBullets bs as) (updateAsteroids as bs sd) (updateRockets t p rs sd ) (checkState st p as rs) (updateSeed sd) (t+1)
        else if st == Paused then return $ GameState p bs as rs st sd t
        else if st== Initial then return $ GameState p bs as rs st sd t
        else return $ (GameState p [] [] [] Stopped sd t)
@@ -130,15 +130,15 @@ keepAsteroid (Asteroid (x,y) a s ) bs |  x > 1550 || x < -1550 = False
 
 -- UPDATE ROCKETS FUNCTIONS
 
-updateRockets :: Player -> [Rocket] -> Int -> [Rocket]
-updateRockets p  rs sd   | sd `mod` 600 == 2 = (spawnRocket p sd):rs
-                         | otherwise = filter (keepRocket) [updateRocket r | r <- rs]
+updateRockets :: Float -> Player -> [Rocket] -> Int -> [Rocket]
+updateRockets t p rs sd | sd `mod` 600 == 2 = (spawnRocket p sd):rs
+                        | otherwise = filter (keepRocket) [updateRocket t r | r <- rs]
 
-updateRocket :: Rocket -> Rocket
-updateRocket (Rocket (x,y) a) = (Rocket (x', y') a)
+updateRocket :: Float -> Rocket -> Rocket
+updateRocket t (Rocket (x,y) a) = (Rocket (x', y') a)
   where
-    x' = x + sin(a) * 9 -- Rocketspeed
-    y' = y + cos(a) * 9 -- Rocketspeed
+    x' = x + sin(a) * (9 + (t/1000)) -- Rocketspeed
+    y' = y + cos(a) * (9 + (t/1000)) -- Rocketspeed
 
 spawnRocket :: Player -> Int -> Rocket
 spawnRocket (Player (xp,yp) _ _ _ _) sd = (Rocket (x,y) a)
