@@ -67,16 +67,6 @@ viewScore  t = do
             let scoreText = translate 250 320 (scale 0.2 0.2 (color white (text ("High Score: " ++ hs ++ "  Score: " ++ show score)))) 
             return scoreText
 
--- viewFinalState :: GameState -> IO Picture
--- viewFinalState (GameState _ _ _ _ _ _ t) = do 
---             let score  = (round t) `div` 100
---             hs <- highscore score
---             let highScoreText = translate 0 100 (scale 0.2 0.2 (color white (text ("Highscore: " ++ show hs))))
---             let finalScoreText =  translate 0 -100 (scale 0.2 0.2 (color white (text ("Score: " ++ show score))))
---             let scores = pictures [highScoreText, finalScoreText]
---             return scores
-
-
 highscore :: Int -> IO String
 highscore score = do 
             t <- readFile "highscore.txt" 
